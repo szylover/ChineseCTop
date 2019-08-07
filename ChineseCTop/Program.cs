@@ -62,8 +62,6 @@ namespace ChineseCTop
                     Console.WriteLine("{0} can not parse, skip....", chengyu);
                 }
             });
-
- 
             
             var json = JsonConvert.SerializeObject(result);
 
