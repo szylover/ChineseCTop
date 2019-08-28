@@ -13,6 +13,23 @@ namespace ChineseCTop
 {
     class Program
     {
+        static bool ChengyueStartMatchEnd(string x)
+        {
+            ChineseChar pre = new ChineseChar(x[0]);
+            ChineseChar suf = new ChineseChar(x[x.Length - 1]);
+            foreach (var py in pre.Pinyins)
+            {
+                if (string.IsNullOrEmpty(py)) continue;
+                string spy = py.Substring(0, py.Length - 1);
+
+                var sy = suf.Pinyins.Where(r => !string.IsNullOrEmpty(r)).Select(r => r.Substring(0, r.Length - 1));
+                if (sy.Contains(spy))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         static void Main(string[] args)
         {
@@ -36,47 +53,29 @@ namespace ChineseCTop
                     ((HashSet<string>)indeces[start]).Add(cy);
                 }
             }
-
-            Parallel.ForEach(chengyus, (chengyu) =>
-            {
-                Console.WriteLine("Processing {0}",chengyu);
-                char endchar = chengyu[chengyu.Length - 1];
-                try
-                {
-                    ChineseChar chc = new ChineseChar(endchar);
-                    List<string> next = new List<string>();
-                    foreach (var pinyin in chc.Pinyins)
-                    {
-                        if (string.IsNullOrEmpty(pinyin)) continue;
-                        var endpy = pinyin.Substring(0, pinyin.Length - 1);
-
-                        next.AddRange(((HashSet<string>)indeces[endpy]));
-                    }
-                    lock (result)
-                    {
-                        result[chengyu] = next;
-                    }
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("{0} can not parse, skip....", chengyu);
-                }
-            });
             
-            var json = JsonConvert.SerializeObject(result);
 
-            System.IO.File.WriteAllText("alljson.txt", json);
-            Console.WriteLine("Done");
-            Console.WriteLine("=====================================================================");
-            foreach (var x in result.Keys)
+            while (true)
             {
-                if (((List<string>)(result[x])).Count == 0)
+                Console.Write("«Î ‰»Î≥…”Ô £∫ ");
+                char ch = Console.ReadLine().Last();
+                var chch = new ChineseChar(ch);
+                foreach (var py in chch.Pinyins)
                 {
-                    Console.WriteLine(x);
+                    if (string.IsNullOrEmpty(py)) continue;
+                    var noyindiao = py.Substring(0, py.Length - 1);
+                    Console.Write(" {0} : ", noyindiao);
+                    var lst = (HashSet<string>)indeces[noyindiao];
+                    if (lst != null)
+                    {
+                        foreach (var outp in lst)
+                        {
+                            Console.Write("{0} ", outp);
+                        }
+                        Console.WriteLine();
+                    }                    
                 }
             }
-            
-            Console.ReadLine();
 
         }
     }
